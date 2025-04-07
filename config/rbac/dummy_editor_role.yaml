@@ -1,0 +1,27 @@
+# permissions for end users to edit dummies.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: operator
+    app.kubernetes.io/managed-by: kustomize
+  name: dummy-editor-role
+rules:
+- apiGroups:
+  - tools.interview.com
+  resources:
+  - dummies
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - tools.interview.com
+  resources:
+  - dummies/status
+  verbs:
+  - get

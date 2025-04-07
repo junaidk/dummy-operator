@@ -1,0 +1,23 @@
+# permissions for end users to view dummies.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: operator
+    app.kubernetes.io/managed-by: kustomize
+  name: dummy-viewer-role
+rules:
+- apiGroups:
+  - tools.interview.com
+  resources:
+  - dummies
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - tools.interview.com
+  resources:
+  - dummies/status
+  verbs:
+  - get
