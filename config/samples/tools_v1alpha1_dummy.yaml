@@ -7,3 +7,4 @@ metadata:
   name: dummy-sample
 spec:
   # TODO(user): Add fields here
+  message: "hello"

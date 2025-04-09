@@ -23,19 +23,33 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
+type PodPhase string
+
+const (
+	PodPhaseRunning PodPhase = "Running"
+	PodPhasePending PodPhase = "Pending"
+)
+
 // DummySpec defines the desired state of Dummy
 type DummySpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of Dummy. Edit dummy_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	// +kubebuilder:validation:Required
+	// Message field contains message
+	Message string `json:"message,omitempty"`
 }
 
 // DummyStatus defines the observed state of Dummy
 type DummyStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	// +operator-sdk:csv:customresourcedefinitions:type=status
+	SpecEcho string `json:"specEcho,omitempty"`
+	// +operator-sdk:csv:customresourcedefinitions:type=status
+	PodStatus PodPhase `json:"podStatus,omitempty"`
 }
 
 // +kubebuilder:object:root=true

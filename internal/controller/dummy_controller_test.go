@@ -18,53 +18,82 @@ package controller
 
 import (
 	"context"
+	"os"
+	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	toolsv1alpha1 "github.com/junaidk/dummy-operator/api/v1alpha1"
 )
 
 var _ = Describe("Dummy Controller", func() {
+	const (
+		timeout  = time.Second * 10
+		interval = time.Millisecond * 250
+		message  = "hello"
+	)
 	Context("When reconciling a resource", func() {
 		const resourceName = "test-resource"
 
 		ctx := context.Background()
 
+		namespace := &corev1.Namespace{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      resourceName,
+				Namespace: resourceName,
+			},
+		}
+
 		typeNamespacedName := types.NamespacedName{
 			Name:      resourceName,
-			Namespace: "default", // TODO(user):Modify as needed
+			Namespace: resourceName,
 		}
 		dummy := &toolsv1alpha1.Dummy{}
 
 		BeforeEach(func() {
+			By("Creating the Namespace to perform the tests")
+			err := k8sClient.Create(ctx, namespace)
+			Expect(err).To(Not(HaveOccurred()))
+
+			By("Setting the Image ENV VAR which stores the Operand image")
+			err = os.Setenv("NGINX_IMAGE", "example.com/image:test")
+			Expect(err).To(Not(HaveOccurred()))
+
 			By("creating the custom resource for the Kind Dummy")
-			err := k8sClient.Get(ctx, typeNamespacedName, dummy)
+			err = k8sClient.Get(ctx, typeNamespacedName, dummy)
 			if err != nil && errors.IsNotFound(err) {
 				resource := &toolsv1alpha1.Dummy{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      resourceName,
-						Namespace: "default",
+						Namespace: resourceName,
 					},
-					// TODO(user): Specify other spec details if needed.
+					Spec: toolsv1alpha1.DummySpec{
+						Message: message,
+					},
 				}
 				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
 			}
 		})
 
 		AfterEach(func() {
-			// TODO(user): Cleanup logic after each test, like removing the resource instance.
 			resource := &toolsv1alpha1.Dummy{}
 			err := k8sClient.Get(ctx, typeNamespacedName, resource)
 			Expect(err).NotTo(HaveOccurred())
 
 			By("Cleanup the specific resource instance Dummy")
 			Expect(k8sClient.Delete(ctx, resource)).To(Succeed())
+
+			By("Deleting the Namespace to perform the tests")
+			_ = k8sClient.Delete(ctx, namespace)
+
+			By("Removing the Image ENV VAR which stores the Operand image")
+			_ = os.Unsetenv("NGINX_IMAGE")
 		})
 		It("should successfully reconcile the resource", func() {
 			By("Reconciling the created resource")
@@ -77,8 +106,27 @@ var _ = Describe("Dummy Controller", func() {
 				NamespacedName: typeNamespacedName,
 			})
 			Expect(err).NotTo(HaveOccurred())
-			// TODO(user): Add more specific assertions depending on your controller's reconciliation logic.
-			// Example: If you expect a certain status condition after reconciliation, verify it here.
+
+			By("Checking if Pod was successfully created in the reconciliation")
+			createdPod := &corev1.Pod{}
+			Eventually(func() error {
+				return k8sClient.Get(ctx, typeNamespacedName, createdPod)
+			}, time.Minute, time.Second).Should(Succeed())
+
+			By("Checking if SpecEcho filed was successfully updated")
+			createdDummy := &toolsv1alpha1.Dummy{}
+			Eventually(func() bool {
+				err := k8sClient.Get(ctx, typeNamespacedName, createdDummy)
+				return err == nil
+			}, timeout, interval).Should(BeTrue())
+			Expect(createdDummy.Status.SpecEcho).Should(Equal(message))
+
+			By("Checking if PodStatus filed was successfully updated")
+			Expect(createdDummy.Status.PodStatus).Should(Equal(toolsv1alpha1.PodPhasePending))
+
+			By("Checking if Pod image filed was successfully set")
+			Expect(createdPod.Spec.Containers[0].Image).Should(Equal(os.Getenv("NGINX_IMAGE")))
+
 		})
 	})
 })
