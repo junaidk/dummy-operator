@@ -1,8 +1,9 @@
 # operator
-// TODO(user): Add simple overview of use/purpose
+
 
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+
+A basic operator to watch custom resrouce and create pod managed by that resource.
 
 ## Getting Started
 
@@ -12,103 +13,63 @@
 - kubectl version v1.11.3+.
 - Access to a Kubernetes v1.11.3+ cluster.
 
-### To Deploy on the cluster
-**Build and push your image to the location specified by `IMG`:**
+### Deploy 
 
-```sh
-make docker-build docker-push IMG=<some-registry>/operator:tag
+Run `make deploy` to deploy operator to cluster in current kubectl context.
+
+Verify that the dummy-operator is up and running:
+
+```
+$ kubectl get deployment -n dummy-operator-system
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE
+operator-controller-manager   1/1     1            1           15s
+```
+It is configure to deploy the operator image `ghcr.io/junaidk/dummy-operator:latest`
+
+### Deploy CR
+
+Sample CR is avialable at `config/samples/tools_v1alpha1_dummy.yaml`
+
+Create the CR:
+
+`kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml`
+
+Ensure that the operator creates the pod for the sample CR:
+
+```
+$ kubectl get po
+NAME           READY   STATUS    RESTARTS   AGE
+dummy-sample   1/1     Running   0          8s
 ```
 
-**NOTE:** This image ought to be published in the personal registry you specified.
-And it is required to have access to pull the image from the working environment.
-Make sure you have the proper permission to the registry if the above commands don’t work.
+Check the pods and CR status to confirm the status is updated:
 
-**Install the CRDs into the cluster:**
-
-```sh
-make install
+```
+$ kubectl describe dummy
+Name:         dummy-sample
+Namespace:    default
+Labels:       app.kubernetes.io/managed-by=kustomize
+              app.kubernetes.io/name=operator
+Annotations:  <none>
+API Version:  tools.interview.com/v1alpha1
+Kind:         Dummy
+Metadata:
+  Creation Timestamp:  2025-04-09T14:30:31Z
+  Finalizers:
+    tools.interview.com/finalizer
+  Generation:        1
+  Resource Version:  69003
+  UID:               aa156d8b-7b46-47c2-b39b-d014d6633ff1
+Spec:
+  Message:  hello
+Status:
+  Pod Status:  Running
+  Spec Echo:   hello
+Events:        <none>
 ```
 
-**Deploy the Manager to the cluster with the image specified by `IMG`:**
+### Cleanup
 
-```sh
-make deploy IMG=<some-registry>/operator:tag
-```
+`kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml`
 
-> **NOTE**: If you encounter RBAC errors, you may need to grant yourself cluster-admin
-privileges or be logged in as admin.
-
-**Create instances of your solution**
-You can apply the samples (examples) from the config/sample:
-
-```sh
-kubectl apply -k config/samples/
-```
-
->**NOTE**: Ensure that the samples has default values to test it out.
-
-### To Uninstall
-**Delete the instances (CRs) from the cluster:**
-
-```sh
-kubectl delete -k config/samples/
-```
-
-**Delete the APIs(CRDs) from the cluster:**
-
-```sh
-make uninstall
-```
-
-**UnDeploy the controller from the cluster:**
-
-```sh
-make undeploy
-```
-
-## Project Distribution
-
-Following are the steps to build the installer and distribute this project to users.
-
-1. Build the installer for the image built and published in the registry:
-
-```sh
-make build-installer IMG=<some-registry>/operator:tag
-```
-
-NOTE: The makefile target mentioned above generates an 'install.yaml'
-file in the dist directory. This file contains all the resources built
-with Kustomize, which are necessary to install this project without
-its dependencies.
-
-2. Using the installer
-
-Users can just run kubectl apply -f <URL for YAML BUNDLE> to install the project, i.e.:
-
-```sh
-kubectl apply -f https://raw.githubusercontent.com/<org>/operator/<tag or branch>/dist/install.yaml
-```
-
-## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
-
-**NOTE:** Run `make help` for more information on all potential `make` targets
-
-More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
-
-## License
-
-Copyright 2025.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
+`make undeploy`
