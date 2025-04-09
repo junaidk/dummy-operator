@@ -8,14 +8,15 @@ A basic operator to watch custom resrouce and create pod managed by that resourc
 ## Getting Started
 
 ### Prerequisites
-- go version v1.22.0+
 - docker version 17.03+.
 - kubectl version v1.11.3+.
 - Access to a Kubernetes v1.11.3+ cluster.
 
 ### Deploy 
 
-Run `make deploy` to deploy operator to cluster in current kubectl context.
+Run `kubectl kustomize config/default | kubectl apply -f -` 
+
+to deploy operator to cluster in current kubectl context.
 
 Verify that the dummy-operator is up and running:
 
@@ -32,7 +33,7 @@ Sample CR is avialable at `config/samples/tools_v1alpha1_dummy.yaml`
 
 Create the CR:
 
-`kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml`
+`kubectl apply -f config/samples/tools_v1alpha1_dummy.yaml`
 
 Ensure that the operator creates the pod for the sample CR:
 
@@ -70,6 +71,6 @@ Events:        <none>
 
 ### Cleanup
 
-`kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml`
+`kubectl delete -f config/samples/tools_v1alpha1_dummy.yaml`
 
-`make undeploy`
+`kubectl kustomize config/default | kubectl delete --ignore-not-found=$(ignore-not-found) -f -`

@@ -6,5 +6,4 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
   name: dummy-sample
 spec:
-  # TODO(user): Add fields here
   message: "hello"
