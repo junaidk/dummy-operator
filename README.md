@@ -81,4 +81,4 @@ Events:        <none>
 
 `kubectl delete -f config/samples/tools_v1alpha1_dummy.yaml`
 
-`kubectl kustomize config/default | kubectl delete --ignore-not-found=$(ignore-not-found) -f -`
+`kubectl kustomize config/default | kubectl delete -f -`
