@@ -3,7 +3,7 @@
 
 ## Description
 
-A basic operator to watch custom resrouce and create pod managed by that resource.
+A basic operator to manage custom resrouce and create pod managed by that resource.
 
 ## Getting Started
 
@@ -13,6 +13,8 @@ A basic operator to watch custom resrouce and create pod managed by that resourc
 - Access to a Kubernetes v1.11.3+ cluster.
 
 ### Deploy Operator
+
+Set proper current context for your test k8s cluster.
 
 Run `kubectl kustomize config/default | kubectl apply -f -` 
 
