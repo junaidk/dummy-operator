@@ -1,8 +1,8 @@
 # operator
-// TODO(user): Add simple overview of use/purpose
 
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+
+A basic operator to watch custom resrouce and create pod managed by that resource.
 
 ## Getting Started
 

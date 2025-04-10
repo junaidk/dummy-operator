@@ -23,11 +23,11 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-type PodPhase string
+type PodStatus string
 
 const (
-	PodPhaseRunning PodPhase = "Running"
-	PodPhasePending PodPhase = "Pending"
+	PodStatusRunning PodStatus = "Running"
+	PodStatusPending PodStatus = "Pending"
 )
 
 // DummySpec defines the desired state of Dummy
@@ -49,7 +49,7 @@ type DummyStatus struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=status
 	SpecEcho string `json:"specEcho,omitempty"`
 	// +operator-sdk:csv:customresourcedefinitions:type=status
-	PodStatus PodPhase `json:"podStatus,omitempty"`
+	PodStatus PodStatus `json:"podStatus,omitempty"`
 }
 
 // +kubebuilder:object:root=true

@@ -122,7 +122,7 @@ var _ = Describe("Dummy Controller", func() {
 			Expect(createdDummy.Status.SpecEcho).Should(Equal(message))
 
 			By("Checking if PodStatus filed was successfully updated")
-			Expect(createdDummy.Status.PodStatus).Should(Equal(toolsv1alpha1.PodPhasePending))
+			Expect(createdDummy.Status.PodStatus).Should(Equal(toolsv1alpha1.PodStatusPending))
 
 			By("Checking if Pod image filed was successfully set")
 			Expect(createdPod.Spec.Containers[0].Image).Should(Equal(os.Getenv("NGINX_IMAGE")))

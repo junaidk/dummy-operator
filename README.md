@@ -12,7 +12,7 @@ A basic operator to watch custom resrouce and create pod managed by that resourc
 - kubectl version v1.11.3+.
 - Access to a Kubernetes v1.11.3+ cluster.
 
-### Deploy 
+### Deploy Operator
 
 Run `kubectl kustomize config/default | kubectl apply -f -` 
 
@@ -27,6 +27,14 @@ operator-controller-manager   1/1     1            1           15s
 ```
 It is configure to deploy the operator image `ghcr.io/junaidk/dummy-operator:latest`
 
+Update `config/manager/manager.yaml` env to use different image for pod.
+
+```
+    env:
+    - name: NGINX_IMAGE
+      value: nginx:latest  
+```
+
 ### Deploy CR
 
 Sample CR is avialable at `config/samples/tools_v1alpha1_dummy.yaml`
@@ -35,7 +43,7 @@ Create the CR:
 
 `kubectl apply -f config/samples/tools_v1alpha1_dummy.yaml`
 
-Ensure that the operator creates the pod for the sample CR:
+Ensure that the operator creates nginx pod for the sample CR:
 
 ```
 $ kubectl get po
@@ -43,10 +51,10 @@ NAME           READY   STATUS    RESTARTS   AGE
 dummy-sample   1/1     Running   0          8s
 ```
 
-Check the pods and CR status to confirm the status is updated:
+Check the CR status to confirm the status is updated:
 
 ```
-$ kubectl describe dummy
+$ kubectl describe dummy dummy-sample
 Name:         dummy-sample
 Namespace:    default
 Labels:       app.kubernetes.io/managed-by=kustomize

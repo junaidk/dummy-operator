@@ -148,7 +148,7 @@ func (r *DummyReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 			return ctrl.Result{}, err
 		}
 
-		dummy.Status.PodStatus = toolsv1alpha1.PodPhasePending
+		dummy.Status.PodStatus = toolsv1alpha1.PodStatusPending
 		if err := r.Status().Update(ctx, dummy); err != nil {
 			log.Error(err, "Failed to update status for Dummy")
 			return ctrl.Result{}, err
@@ -162,12 +162,9 @@ func (r *DummyReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	}
 
 	if IsPodReady(found) {
-		dummy.Status.PodStatus = toolsv1alpha1.PodPhaseRunning
+		dummy.Status.PodStatus = toolsv1alpha1.PodStatusRunning
 	} else {
-		return ctrl.Result{
-			Requeue:      true,
-			RequeueAfter: time.Second * 10,
-		}, nil
+		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 10}, nil
 	}
 
 	if err := r.Status().Update(ctx, dummy); err != nil {
